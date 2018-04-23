@@ -1,0 +1,29 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<iframe src="/system/apidoc/doc" id="iframepage" frameborder="0" width="100%"></iframe>
+
+<!-- javascript -->
+<script type="text/javascript">
+layui.use('jquery', function() {
+	var $ = layui.jquery, $iframepage = $('#iframepage');
+	$iframepage.load(function() {
+		console.log($iframepage);
+		// 移除阿里广告
+		$iframepage.contents().find(".footer").remove();
+		// 设置高度
+		// var mainheight = $(this).contents().find("body").height() + 80;
+		calculateHeight();
+	}); 
+	
+	// 监听浏览器窗口变化
+	$(window).resize(function () {
+		calculateHeight();
+	});
+	
+	// 动态设置iframe高度
+	function calculateHeight() {
+		var mainheight = $(document).height() - 190;
+		$iframepage.height(mainheight);
+	}
+})
+</script>

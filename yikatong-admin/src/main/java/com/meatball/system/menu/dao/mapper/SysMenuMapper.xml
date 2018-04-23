@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.meatball.system.menu.dao.SysMenuMapper">
+<resultMap id="BaseResultMap" type="com.meatball.system.menu.model.SysMenu">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="pid" jdbcType="BIGINT" property="pid" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="href" jdbcType="VARCHAR" property="href" />
+    <result column="perms" jdbcType="VARCHAR" property="perms" />
+    <result column="type" jdbcType="INTEGER" property="type" />
+    <result column="icon" jdbcType="VARCHAR" property="icon" />
+    <result column="order_num" jdbcType="INTEGER" property="orderNum" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="spread" jdbcType="TINYINT" property="spread" />
+  </resultMap>
+  <resultMap id="TreeResultMap" type="com.meatball.system.menu.model.SysMenu">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="pid" jdbcType="BIGINT" property="pid" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="href" jdbcType="VARCHAR" property="href" />
+    <result column="perms" jdbcType="VARCHAR" property="perms" />
+    <result column="type" jdbcType="INTEGER" property="type" />
+    <result column="icon" jdbcType="VARCHAR" property="icon" />
+    <result column="order_num" jdbcType="INTEGER" property="orderNum" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="spread" jdbcType="TINYINT" property="spread" />
+    <collection property="children" column="id" javaType="ArrayList" ofType="com.meatball.system.menu.model.SysMenu" select="selectByPid" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, pid, name, href, perms, type, icon, order_num, create_time, spread
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from sys_menu
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from sys_menu
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.meatball.system.menu.model.SysMenu">
+    insert into sys_menu (id, pid, name, 
+      href, perms, type, 
+      icon, order_num, create_time, 
+      spread)
+    values (#{id,jdbcType=BIGINT}, #{pid,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, 
+      #{href,jdbcType=VARCHAR}, #{perms,jdbcType=VARCHAR}, #{type,jdbcType=INTEGER}, 
+      #{icon,jdbcType=VARCHAR}, #{orderNum,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{spread,jdbcType=TINYINT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.meatball.system.menu.model.SysMenu">
+    insert into sys_menu
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="pid != null">
+        pid,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="href != null">
+        href,
+      </if>
+      <if test="perms != null">
+        perms,
+      </if>
+      <if test="type != null">
+        type,
+      </if>
+      <if test="icon != null">
+        icon,
+      </if>
+      <if test="orderNum != null">
+        order_num,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="spread != null">
+        spread,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="pid != null">
+        #{pid,jdbcType=BIGINT},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="href != null">
+        #{href,jdbcType=VARCHAR},
+      </if>
+      <if test="perms != null">
+        #{perms,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null">
+        #{type,jdbcType=INTEGER},
+      </if>
+      <if test="icon != null">
+        #{icon,jdbcType=VARCHAR},
+      </if>
+      <if test="orderNum != null">
+        #{orderNum,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="spread != null">
+        #{spread,jdbcType=TINYINT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.meatball.system.menu.model.SysMenu">
+    update sys_menu
+    <set>
+      <if test="pid != null">
+        pid = #{pid,jdbcType=BIGINT},
+      </if>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="href != null">
+        href = #{href,jdbcType=VARCHAR},
+      </if>
+      <if test="perms != null">
+        perms = #{perms,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null">
+        type = #{type,jdbcType=INTEGER},
+      </if>
+      <if test="icon != null">
+        icon = #{icon,jdbcType=VARCHAR},
+      </if>
+      <if test="orderNum != null">
+        order_num = #{orderNum,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="spread != null">
+        spread = #{spread,jdbcType=TINYINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.meatball.system.menu.model.SysMenu">
+    update sys_menu
+    set pid = #{pid,jdbcType=BIGINT},
+      name = #{name,jdbcType=VARCHAR},
+      href = #{href,jdbcType=VARCHAR},
+      perms = #{perms,jdbcType=VARCHAR},
+      type = #{type,jdbcType=INTEGER},
+      icon = #{icon,jdbcType=VARCHAR},
+      order_num = #{orderNum,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      spread = #{spread,jdbcType=TINYINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  
+  <!-- 查询所有菜单，无树形结构 -->
+  <select id="selectAllMenu" resultMap="BaseResultMap">
+  	select 
+    <include refid="Base_Column_List" />
+    from sys_menu 
+    order by order_num
+  </select>
+  
+  <!-- 查询所有，使用resultMap返回结果集，将数据组装成树形结构 -->
+  <select id="selectAllTreeMenu" resultMap="TreeResultMap">
+  	select 
+    <include refid="Base_Column_List" />
+    from sys_menu
+    <where>
+    	pid = 0 
+    </where>
+    order by order_num
+  </select>
+  
+  <!-- 根据条件查询菜单 -->
+  <select id="selectByPid" parameterType="java.lang.Integer" resultMap="TreeResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from sys_menu
+    <where>
+    	pid = #{pid,jdbcType=BIGINT}
+    </where>
+    order by order_num
+  </select>
+  
+  <!-- 根据PID删除菜单 -->
+  <delete id="deleteByPid" parameterType="java.lang.Long">
+    delete from sys_menu
+    where pid = #{pid,jdbcType=BIGINT}
+  </delete>
+  
+  <!-- 查询分页列表 -->
+  <select id="findPageList" parameterType="java.lang.Long" resultMap="BaseResultMap">
+  	select 
+  	<include refid="Base_Column_List" />
+  	from sys_menu 
+  	<where>
+  		<if test="id != null">
+  			id = #{id,jdbcType=BIGINT} 
+  			union select 
+  			<include refid="Base_Column_List" />
+  			from sys_menu where pid = #{id,jdbcType=BIGINT}
+  		</if>
+  	</where>
+  </select>
+  
+  <!-- 根据授权查询出菜单集合 -->
+  <select id="selectMenusByPerms" resultMap="TreeResultMap">
+  	select 
+  	<include refid="Base_Column_List" />
+  	from sys_menu where perms in 
+  	<foreach collection="_perms" item="perm" index="index" open="(" close=")" separator=",">
+  		#{perm}
+  	</foreach>
+  </select>
+</mapper>

@@ -1,0 +1,321 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<div class="layui-fluid">
+	<div class="layui-row">
+		<div class="layui-col-md2">
+			<ul id="menuTree"></ul>
+		</div>
+		<div class="layui-col-md10">
+			<table id="menuTable" lay-filter="menuTable"></table>
+		</div>
+	</div>
+</div>
+<!-- 操作 -->
+<script type="text/html" id="operationMenuBar">
+  <button class="layui-btn layui-btn-warm layui-btn-xs" lay-event="add">新增</button>
+  <button class="layui-btn layui-btn-xs" lay-event="edit">编辑</button>
+  <button class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</button>
+</script>
+<!-- 状态操作 -->
+<script type="text/html" id="spread">
+	<input type="checkbox" id="{{d.id}}" name="spread" value="{{d.spread}}" lay-skin="switch" lay-text="展开|关闭" lay-filter="spread" {{ d.spread ? 'checked' : '' }}>
+</script>
+<!-- 图标渲染 -->
+<script type="text/html" id="menuIcon">
+	<i class="{{d.icon}}"></i>
+</script>
+
+<!-- 新增菜单 -->
+<script type="text/html" id="addMenu">
+<form class="layui-form layui-form-pane" id="menuForm">
+	<input class="hidden-attribute" name="id" value="{{d.id}}">
+	<input class="hidden-attribute" name="pid" value="{{d.pid}}">
+	<div class="layui-form-item">
+		<label class="layui-form-label">名称</label>
+		<div class="layui-input-block">
+			<input type="text" name="name" maxlength="20" autocomplete="off" placeholder="请输入名称" class="layui-input" lay-verify="required">
+		</div>
+	</div>
+	<div class="layui-form-item">
+	    <label class="layui-form-label">类型</label>
+	    <div class="layui-input-block">
+	      <select name="type" lay-filter="selectType">
+	        <option value="0">目录</option>
+	        <option value="1" selected="selected">菜单</option>
+	        <option value="2">按钮</option>
+	      </select>
+	    </div>
+	  </div>
+	  <div class="layui-form-item">
+	  	<div class="layui-inline">
+			<label class="layui-form-label">菜单级别</label>
+			<div class="layui-input-block">
+				<input type="radio" name="hierarchy" value="0" title="同级菜单">
+				<input type="radio" name="hierarchy" value="1" title="下级菜单" checked>
+			</div>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">是否展开</label>
+		    <div class="layui-input-block">
+		      <input type="checkbox" name="spread" lay-skin="switch" lay-text="是|否">
+		    </div>
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<label class="layui-form-label">链接地址</label>
+		<div class="layui-input-block">
+			<input type="text" name="href" autocomplete="off" placeholder="请输入链接地址" class="layui-input">
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<label class="layui-form-label">授权</label>
+		<div class="layui-input-block">
+			<input type="text" name="perms" autocomplete="off" placeholder="请输入授权(如：user:list)" class="layui-input" lay-verify="required">
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<label class="layui-form-label">图标</label>
+		<div class="layui-input-block">
+			<input type="text" name="icon" autocomplete="off" placeholder="请输入链接地址" class="layui-input">
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<label class="layui-form-label">排序</label>
+		<div class="layui-input-block">
+			<input type="text" name="orderNum" autocomplete="off" placeholder="请输入序号" class="layui-input" lay-verify="required">
+		</div>
+	</div>
+	
+	<div class="hidden-attribute">
+		<button class="layui-btn submit" lay-submit="" lay-filter="add">新增</button>
+		<button class="layui-btn reset" type="reset">重置</button>
+	</div>
+</form>
+</script>
+
+<!-- 修改菜单 -->
+<script type="text/html" id="updateMenu">
+<form class="layui-form layui-form-pane" id="menuForm">
+	<input class="hidden-attribute" name="id" value="{{d.id}}">
+	<input type="hidden" name="spread" value="{{d.spread}}">
+	<div class="layui-form-item">
+		<label class="layui-form-label">名称</label>
+		<div class="layui-input-block">
+			<input type="text" name="name" value="{{d.name}}" autocomplete="off" placeholder="请输入名称" class="layui-input" lay-verify="required">
+		</div>
+	</div>
+	<div class="layui-form-item">
+	    <label class="layui-form-label">类型</label>
+	    <div class="layui-input-block">
+	      <select name="type" lay-filter="selectType">
+	        <option value="0" {{d.type == 0 ? 'selected' : ''}}>目录</option>
+	        <option value="1" {{d.type == 1 ? 'selected' : ''}}>菜单</option>
+	        <option value="2" {{d.type == 2 ? 'selected' : ''}}>按钮</option>
+	      </select>
+	    </div>
+	  </div>
+	<div class="layui-form-item">
+		<label class="layui-form-label">链接地址</label>
+		<div class="layui-input-block">
+			<input type="text" name="href" value="{{d.href}}" autocomplete="off" placeholder="请输入链接地址" class="layui-input">
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<label class="layui-form-label">授权</label>
+		<div class="layui-input-block">
+			<input type="text" name="perms" value="{{d.perms}}" autocomplete="off" placeholder="请输入授权(多个用逗号分隔，如：user:list,user:create)" class="layui-input" lay-verify="required">
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<label class="layui-form-label">图标</label>
+		<div class="layui-input-block">
+			<input type="text" name="icon" value="{{d.icon}}" autocomplete="off" placeholder="请输入链接地址" class="layui-input">
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<label class="layui-form-label">排序</label>
+		<div class="layui-input-block">
+			<input type="text" name="orderNum" value="{{d.orderNum}}" autocomplete="off" placeholder="请输入序号" class="layui-input" lay-verify="required">
+		</div>
+	</div>
+	
+	<div class="hidden-attribute">
+		<button class="layui-btn submit" lay-submit="" lay-filter="update">新增</button>
+		<button class="layui-btn reset" type="reset">重置</button>
+	</div>
+</form>
+</script>
+
+<!-- javascript -->
+<script type="text/javascript">
+layui.use(['form', 'tree', 'laydate', 'layedit', 'jquery', 'table'], function() {
+	var form = layui.form, ajaxType = 'POST', layer = layui.layer, tree = layui.tree, $ = layui.jquery, table = layui.table,
+		laytpl = layui.laytpl, layerIndex = 0;
+	
+	// 左侧树
+	tree({
+		elem: '#menuTree', //传入元素选择器
+		url: '/system/menu/menus',
+		click: function(node) {
+			pid = node.pid;
+			table.reload('menuTable', {
+				where: {'id': node.id}
+			});
+		}
+	})
+	
+	// 绘制表格
+	table.render({
+		elem: '#menuTable',
+		url: '/system/menu/table',
+		page: true, // 开始分页
+		cellMinWidth: 80, // 定义全局最小宽度
+		request: {
+			pageName: 'offset'
+		},
+		response: {
+		  countName: 'total', //数据总数的字段名称，默认：count
+		  dataName: 'list' //数据列表的字段名称，默认：data
+		},
+		cols: [[
+			{type: 'numbers', title: '序号'},
+			{field:'name', title: '名称'},
+			{field:'href', title: '链接地址'},
+			{field:'perms', title: '授权'},
+			{field:'typeVo', title: '类型'},
+			{field:'icon', title: '图标', templet: '#menuIcon'},
+			{field:'orderNum', title: '排序'},
+			{field:'spread', title: '是否展开', align:'center', templet: '#spread'},
+			{fixed: 'right', align:'center', title: '操作',  width: 180, toolbar: '#operationMenuBar'}
+		]]
+	});
+	//监听工具条
+	table.on('tool(menuTable)', function(obj) {
+		var data = obj.data, $this = $(this), getView = addMenu.innerHTML, getEdit = updateMenu.innerHTML;
+		if(obj.event === 'add') {
+			laytpl(addMenu.innerHTML).render(data, function(html) {
+				popupWin($this.text(), html);
+			})
+			rendering();
+		} else if(obj.event === 'del') {
+			layer.confirm('真的删除行么', {icon: 3}, function(index) {
+				operate('DELETE', {'id': data.id}, false, obj);
+				layer.close(index);
+			});
+		} else if(obj.event === 'edit') {
+			$.get('/system/menu/' + data.id, function(res) {
+				if(res.code == 403) {
+					layer.msg(res.message, {icon: 4});
+				} else {
+					laytpl(getEdit).render(res, function(html) {
+						popupWin($this.text(), html);
+					});
+					rendering();
+				}
+			})
+		}
+	});
+	
+	// 监听状态改变
+	form.on('switch(spread)', function(obj) {
+		operate('PUT', {'id': this.id, 'spread': obj.elem.checked}, false);
+	});
+	
+	// 监听类型改变
+	form.on('select(selectType)', function(data) {
+// 		var $form = $(this).parents('form');
+		if(data.value == 0) {
+// 			$form[0].reset();
+			layer.alert('此类型下新建的菜单为顶级菜单', {icon: 6});
+		}
+	 });
+	
+	// 新增菜单
+	//监听提交
+	form.on('submit(add)', function(data) {
+		operate('POST', data.field, true)
+	  	return false;
+	 });
+	
+	// 更新
+	form.on('submit(update)', function(data) {
+		operate('PUT', data.field, true)
+	  	return false;
+	 });
+	
+	// 用户操作
+	// ajaxType 请求类型
+	// data 参数
+	// refresh 是否刷新
+	// 删除操作时传入的当前行对象
+	function operate(ajaxType, data, refresh, delRow) {
+		var url = '/system/menu/';
+		if(ajaxType == 'DELETE') {
+			url = '/system/menu/' + data.id;
+		}
+		$.ajax({
+			url: url,
+		    type: ajaxType,
+		    async: true,
+		    data: data,
+		    success: function(res) {
+		    	if(res.code == 200) {
+					layer.close(layerIndex);
+					tree('menuTree', 'reload');
+					if(refresh) {
+		    			table.reload('menuTable');
+					} else if(ajaxType == 'DELETE') {
+						delRow.del();
+					}
+		    		if(data.resetPwd) {
+		    			layer.alert(res.message, {icon: 6});
+		    		} else {
+						layer.msg(res.message, {icon: 1});
+		    		}
+		    	} else if(res.code == 403) {
+		    		layer.msg(res.message, {icon: 4});
+		    	} else {
+		    		layer.msg(res.message, {icon: 5});
+		    	}
+		    }
+		})
+	}
+	
+	//渲染弹框
+	function popupWin(title, content, height) {
+		layerIndex = layer.open({
+			type: 1, //Page层类型
+			area: '700px',//'auto', //['700px', '480'],
+			maxWidth: 1000,
+			maxHeight: 800,
+			title: title,
+			shade: 0.6, //遮罩透明度
+			// maxmin: true, //允许全屏最小化
+			anim: 0, //0-6的动画形式，-1不开启
+			scrollbar: false, //禁用滚动
+			// shadeClose: true, // 点击遮罩是否关闭
+			content: content,
+			btn: ['<i class="layui-icon">&#xe61f;</i> 提交', '<i class="layui-icon">&#x1002;</i> 重置'],
+			yes: function(index, layero) {
+				layero.find('form .submit').trigger('click');
+				return false;
+			},
+			btn2: function(index, layero) {
+				layero.find('form .reset').trigger('click');
+				return false;
+			}
+		});
+	}
+	
+	// 动态渲染控件
+	function rendering() {
+		// 渲染select
+		form.render('select');
+		// 单选
+		form.render('radio');	
+		// 重新渲染多选框
+		form.render('checkbox');	
+	}
+})
+</script>
+</html>

@@ -1,0 +1,221 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<div class="layui-row">
+	<div class="layui-col-sm2">
+		<div class="zTreeDemoBackground left">
+			<ul id="menuTree" class="ztree"></ul>
+		</div>
+	</div>
+	<div class="layui-col-sm7">
+		<form class="layui-form layui-form-pane" id="menuForm">
+			<div class="layui-form-item" style="display: none;" id="pidName">
+				<label class="layui-form-label">上级菜单</label>
+				<div class="layui-input-block">
+					<input class="layui-input" type="text" disabled="disabled">
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">名称</label>
+				<div class="layui-input-block">
+					<input type="text" name="name" autocomplete="off" placeholder="请输入名称" class="layui-input" lay-verify="required">
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">链接地址</label>
+				<div class="layui-input-block">
+					<input type="text" name="href" autocomplete="off" placeholder="请输入链接地址" class="layui-input" lay-verify="required">
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">授权</label>
+				<div class="layui-input-block">
+					<input type="text" name="perms" autocomplete="off" placeholder="请输入授权(多个用逗号分隔，如：user:list,user:create)" class="layui-input" lay-verify="required">
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">图标</label>
+				<div class="layui-input-block">
+					<input type="text" name="icon" autocomplete="off" placeholder="请输入链接地址" class="layui-input">
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">排序</label>
+				<div class="layui-input-block">
+					<input type="text" name="orderNum" autocomplete="off" placeholder="请输入序号" class="layui-input" lay-verify="required">
+				</div>
+			</div>
+			<div class="layui-form-item">
+			    <label class="layui-form-label">类型</label>
+			    <div class="layui-input-block">
+			      <select name="type" lay-filter="selectType">
+			        <option value="0">目录</option>
+			        <option value="1" selected="selected">菜单</option>
+			        <option value="2">按钮</option>
+			      </select>
+			    </div>
+			  </div>
+			  
+			  <div class="layui-form-item">
+			    <label class="layui-form-label">是否展开</label>
+			    <div class="layui-input-block">
+			      <input type="checkbox" checked="" name="open" lay-skin="switch" lay-text="是|否">
+			    </div>
+			  </div>
+			
+			<div class="layui-form-item">
+				<button id="submitBtn" class="layui-btn layui-btn-disabled" lay-submit="" lay-filter="add" disabled="disabled">
+					<i class="layui-icon">&#xe61f;</i> 新增
+				</button>
+				<button class="layui-btn layui-btn-primary" type="reset">
+					<i class="layui-icon">&#x1002;</i> 重置
+				</button>
+			</div>
+			<input name="pid" style="display: none;">
+			<input name="id" style="display: none;">
+		</form>
+	</div>
+</div>
+<script type="text/javascript">
+layui.use(['form', 'ztree', 'laydate', 'layedit', 'ztreeedit', 'jquery', 'echoform'], function() {
+	var form = layui.form,
+		ajaxType = 'POST',
+		layer = layui.layer,
+		ztree = layui.ztree,
+		$ = layui.jquery,
+		echoform = layui.echoform,
+		$menuForm = $('#menuForm'),
+		$submitBtn = $('#submitBtn')
+		$pidName = $('#pidName');
+		
+	form.on('select(selectType)', function(data){
+		if(data.value == 0) {
+			$pidName.hide();
+			$menuForm[0].reset();
+			layer.alert('此类型下新建的菜单为顶级菜单', {icon: 6});
+		} else {
+			$pidName.show();
+		}
+	 });
+	  
+ 	//监听提交
+	form.on('submit(add)', function(data) {
+	  $.ajax({
+		url: '/system/menu/',
+	    type: ajaxType,
+	    async: true,
+	    data: data.field,
+	    success: function(data) {
+	    	if(data.code == 200) {
+	    		layer.msg(data.message, {icon: 1});
+	    		$menuForm[0].reset();
+	    		// 刷新树
+	    		menuTree.reAsyncChildNodes(null, "refresh");;
+	    	}
+	    }
+	})
+  	return false;
+ });
+	
+	// 渲染左侧树菜单
+	var setting = {
+		async: {
+			enable: true,
+			url: "/system/menu/menus"
+		},
+		edit: {
+			enable: true,
+			removeTitle: "删除菜单",
+			showRemoveBtn: true,
+			showRenameBtn: false
+		},
+		view: {
+			addHoverDom: addHoverDom, // 获得焦点是增加新增按钮
+			removeHoverDom: removeHoverDom // 失去焦点时移除新增按钮
+		},
+		callback: {
+			beforeRemove: removeMenu,
+			onClick: zTreeOnClick
+		}
+	};
+	
+	var menuTree = ztree.init($("#menuTree"), setting);
+	
+	// 获得焦点时增加新增按钮
+	function addHoverDom(treeId, treeNode) {
+		var sObj = $("#" + treeNode.tId + "_span");
+		if (treeNode.editNameFlag || $("#addBtn_"+treeNode.tId).length>0) return;
+		var addStr = "<span class='button add' id='addBtn_" + treeNode.tId + "' title='add node' onfocus='this.blur();'></span>";
+		sObj.after(addStr);
+		var btn = $("#addBtn_"+treeNode.tId);
+		if (btn) btn.bind("click", function(){
+			if(treeNode.level == 2 && $menuForm.find('select').val() != 2) {
+				layer.msg('菜单最高支持三级。', {icon: 5});
+			} else {
+				// 设置ajax请求类型
+				ajaxType = 'POST',
+				$submitBtn.removeAttr('disabled');
+				$submitBtn.removeClass('layui-btn-disabled');
+				$submitBtn.html('<i class="layui-icon">&#xe61f;</i> 新增')
+				$menuForm[0].reset();
+				// 设置父ID
+				$menuForm.find('input[name=pid]').val(treeNode.id);
+				$pidName.find('input').val(treeNode.name);
+				$pidName.show();
+			}
+			return false;
+		});
+	};
+	
+	// 失去焦点时移除新增按钮
+	function removeHoverDom(treeId, treeNode) {
+		$("#addBtn_"+treeNode.tId).unbind().remove();
+	};
+	
+	// 点击时执行更新操作
+	function zTreeOnClick(event, treeId, treeNode) {
+		$menuForm[0].reset();
+		// 设置ajax请求类型
+		ajaxType = 'PUT',
+		$submitBtn.removeAttr('disabled');
+		$submitBtn.removeClass('layui-btn-disabled');
+		$submitBtn.html('<i class="layui-icon">&#xe62f;</i> 更新');
+		$pidName.hide();
+		$.get('/system/menu/' + treeNode.id, function(data) {
+			$menuForm.echoform(data);
+			form.render('select');	// 重新渲染下拉框
+			form.render('checkbox');	// 重新渲染多选框
+		})
+	};
+	
+	// 删除菜单
+	function removeMenu(treeId, treeNode) {
+		if(treeNode.children != null) {
+			layer.confirm('此菜单包含子菜单项，是否确定删除？', {icon: 3, title:'提示'}, function(index) {
+				if(delMenu(treeNode.id)) {
+					menuTree.removeNode(treeNode);
+				}
+				layer.close(index);
+			});
+		} else {
+			return delMenu(treeNode.id);
+		}
+		return false;
+	}
+	function delMenu(id) {
+		var result = false;
+		$.ajax({
+			url: '/system/menu/' + id,
+		    type: 'DELETE',
+		    async: false,
+		    success: function(data) {
+		    	if(data.code == 200) {
+		    		layer.msg(data.message, {icon: 1});
+		    		result =  true;
+		    	}
+		    }
+		})
+		return result;
+	}
+})
+</script>
+</html>

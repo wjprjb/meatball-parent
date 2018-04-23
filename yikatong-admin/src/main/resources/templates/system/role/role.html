@@ -1,0 +1,335 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+
+<div class="layui-fluid">
+	<div class="layui-row">
+		<div class="layui-md12">
+			<form class="layui-form" style="float: left;">
+				<button class="layui-btn layui-btn-warm" lay-submit lay-filter="addRoleBtn" title="新增" id="addRoleBtn">
+<!-- 				<button class="layui-btn layui-btn-warm" title="新增" id="addRoleBtn"> -->
+					<i class="layui-icon">&#xe61f;</i> 新增
+				</button>
+			</form>
+		</div>
+		<div class="layui-col-md12">
+			<!-- 表格 -->
+			<table id="roleTable" lay-filter="roleTable"></table>
+		</div>
+	</div>
+</div>
+<!-- 操作 -->
+<script type="text/html" id="operationRoleBar">
+  <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+  <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+<!-- 新增 -->
+<script type="text/html" id="roleAddForm">
+<form class="layui-form layui-form-pane">
+	<div class="layui-form-item">
+		<label class="layui-form-label">名称</label>
+		<div class="layui-input-block">
+			<input type="text" name="roleName" autocomplete="off" placeholder="请输入角色名称" class="layui-input" lay-verify="required">
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<label class="layui-form-label">权限</label>
+		<div class="layui-input-block">
+			<div class="layui-unselect layui-form-select downpanel-tree">
+				<div class="layui-select-title">
+					<span class="layui-input layui-unselect" style="overflow: hidden; text-overflow:ellipsis; white-space: nowrap;">请选择权限范围</span>
+					<input type="hidden" name="roleView" value="0">
+					<i class="layui-edge"></i>
+				</div>
+				<dl class="layui-anim layui-anim-upbit">
+					<dd>
+						<ul id="roleMenuTree" class="ztree"></ul>
+					</dd>
+				</dl>						
+			</div>
+		</div>		
+	</div>
+	<div class="layui-form-item">
+		<label class="layui-form-label">标志</label>
+		<div class="layui-input-block">
+			<input type="text" name="roleSign" autocomplete="off" placeholder="请输选择权限" class="layui-input" readonly="readonly" lay-verify="required">
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<label class="layui-form-label">备注</label>
+		<div class="layui-input-block">
+			<input type="text" name="remark" autocomplete="off" placeholder="请输入角色备注" class="layui-input">
+		</div>
+	</div>
+	<div class="hidden-attribute">
+		<button class="layui-btn submit" lay-submit="" lay-filter="addRole">新增</button>
+		<button class="layui-btn reset" type="reset">重置</button>
+	</div>
+</form>
+</script>
+
+<!-- 编辑 -->
+<script type="text/html" id="roleEditForm">
+<form class="layui-form layui-form-pane">
+	<input type="hidden" name="id" value="{{d.id}}">
+	<input type="hidden" name="roleViewVo" value="{{d.roleView}}">
+	<div class="layui-form-item">
+		<label class="layui-form-label">名称</label>
+		<div class="layui-input-block">
+			<input type="text" name="roleName" value="{{d.roleName}}" autocomplete="off" placeholder="请输入角色名称" class="layui-input" lay-verify="required">
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<label class="layui-form-label">权限</label>
+		<div class="layui-input-block">
+			<div class="layui-unselect layui-form-select downpanel-tree">
+				<div class="layui-select-title">
+					<span class="layui-input layui-unselect" style="overflow: hidden; text-overflow:ellipsis; white-space: nowrap;">{{d.roleView}}</span>
+					<input type="hidden" name="roleView" value="{{d.roleView}}">
+					<i class="layui-edge"></i>
+				</div>
+				<dl class="layui-anim layui-anim-upbit">
+					<dd>
+						<ul id="roleMenuTree" class="ztree"></ul>
+					</dd>
+				</dl>						
+			</div>
+		</div>		
+	</div>
+	<div class="layui-form-item">
+		<label class="layui-form-label">标志</label>
+		<div class="layui-input-block">
+			<input type="text" name="roleSign" value="{{d.roleSign}}" autocomplete="off" placeholder="请输选择权限" class="layui-input" readonly="readonly" lay-verify="required">
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<label class="layui-form-label">备注</label>
+		<div class="layui-input-block">
+			<input type="text" name="remark" value="{{d.remark}}" autocomplete="off" placeholder="请输入角色备注" class="layui-input">
+		</div>
+	</div>
+	<div class="hidden-attribute">
+		<button class="layui-btn submit" lay-submit="" lay-filter="updateRole">编辑</button>
+		<button class="layui-btn reset" type="reset">重置</button>
+	</div>
+</form>
+</script>
+
+<!-- javascirpt -->
+<script th:inline="javascript">  
+	var roleMenuTree = /*[[${roleMenuTree}]]*/  
+</script>
+<script type="text/javascript">
+layui.use(['table', 'form', 'jquery', 'upload', 'laytpl', 'ztree', 'ztreecheck'], function() {
+	var table = layui.table, form = layui.form, element = layui.element, laytpl = layui.laytpl, $ = layui.jquery,
+		ztree = layui.ztree, checkedMenu = -1, layerIndex = 1;
+	
+	// 绘制表格
+	table.render({
+		elem: '#roleTable',
+		url: '/system/role/table',
+		page: true, // 开始分页
+		// cellMinWidth: 80, // 定义全局最小宽度
+		request: {
+			pageName: 'offset'
+		},
+		response: {
+		  countName: 'total', //数据总数的字段名称，默认：count
+		  dataName: 'list' //数据列表的字段名称，默认：data
+		},
+		cols: [[
+			{type: 'numbers', title: '序号'},
+			{field:'roleName', title: '名称', width: 180},
+			{field:'roleSign', title: '标志'},
+			{field:'roleView', title: '权限'},
+			{field:'remark', title: '备注', width: 200},
+			{field:'createTimeVo', title: '创建时间', width: 180},
+			{fixed: 'right', align:'center', width: 150, toolbar: '#operationRoleBar'}
+		]]
+	});
+	//监听工具条
+	table.on('tool(roleTable)', function(obj) {
+		var data = obj.data, $this = $(this);
+		if(obj.event === 'del') {
+			layer.confirm('真的删除行么', {icon: 3}, function(index) {
+				operateRole('DELETE', {'id': data.id}, false, obj);
+				layer.close(index);
+			});
+		} else if(obj.event === 'edit') {
+			$.get('/system/role/' + data.id, function(res) {
+				if(res.code == 403) {
+					layer.msg(res.message, {icon: 4});
+				} else {
+					laytpl(roleEditForm.innerHTML).render(res, function(html) {
+						popupRoleWin($this.text(), html);
+					});
+					checkedMenu = res.menus;
+					renderTree(res.menus);
+				}
+			})
+		}
+	});
+	
+// 	$('#addRoleBtn').on('click', function() {
+// 		popupWin($(this).attr('title'), roleAddForm.innerHTML);
+// 		renderTree();
+// 	})
+	
+	// 新增
+	form.on('submit(addRoleBtn)', function(data) {
+		popupRoleWin($(this).attr('title'), roleAddForm.innerHTML);
+		renderTree(roleMenuTree);
+		return false;
+	})
+	// 新增提交
+	form.on('submit(addRole)', function(data) {
+		operateRole('POST', data.field, true);
+		return false;
+	})
+	
+	// 更新
+	form.on('submit(updateRole)', function(data) {
+		operateRole('PUT', data.field, true);
+		return false;
+	})
+	
+	// 用户操作
+	// ajaxType 请求类型
+	// data 参数
+	// refresh 是否刷新
+	// 删除操作时传入的当前行对象
+	function operateRole(ajaxType, data, refresh, delRow) {
+		var url = '/system/role/';
+		if(ajaxType == 'DELETE') {
+			url = '/system/role/' + data.id;
+		}
+		$.ajax({
+			url: url,
+		    type: ajaxType,
+		    async: true,
+		    data: data,
+		    success: function(res) {
+		    	if(res.code == 200) {
+					layer.close(layerIndex);
+					if(refresh) {
+		    			table.reload('roleTable');
+					} else if(ajaxType == 'DELETE') {
+						delRow.del();
+					}
+		    		if(data.resetPwd) {
+		    			layer.alert(res.message, {icon: 6});
+		    		} else {
+						layer.msg(res.message, {icon: 1});
+		    		}
+		    	} else if(res.code == 403) {
+		    		layer.msg(res.message, {icon: 4});
+		    	} else {
+		    		layer.msg(res.message, {icon: 5});
+		    	}
+		    }
+		})
+	}
+	
+	//渲染弹框
+	function popupRoleWin(title, content, height) {
+		layerIndex = layer.open({
+			type: 1, //Page层类型
+			area: '700px', //['700px', '480'],
+			maxWidth: 1000,
+			maxHeight: 800,
+			title: title,
+			shade: 0.6, //遮罩透明度
+			maxmin: true, //允许全屏最小化
+			anim: 0, //0-6的动画形式，-1不开启
+			scrollbar: false, //禁用滚动
+			content: content,
+			btn: ['<i class="layui-icon">&#xe61f;</i> 提交', '<i class="layui-icon">&#x1002;</i> 重置'],
+			btn1: function(index, layero) {
+				layero.find('form .submit').trigger('click');
+				return false;
+			},
+			btn2: function(index, layero) {
+				var treeObj = ztree.getZTreeObj("roleMenuTree");
+				if(layero.find('form .submit').attr('lay-filter') != 'update') {
+					treeObj.checkAllNodes(false);
+					$('.layui-select-title span').text('请选择权限范围');
+				} else {
+					console.log(checkedMenu);
+// 					renderTree(checkedMenu);
+					$('.layui-select-title span').text(layero.find('form input[name=roleViewVo]').val());
+				}
+				
+				layero.find('form .reset').trigger('click');
+				return false;
+			}
+		});
+	}
+	// 动态渲染控件
+	function rendering() {
+		// 渲染select
+		form.render('select');
+		// 重新渲染多选框
+		form.render('checkbox');	
+	}
+	
+	// 渲染下拉树
+	var setting = {
+		check: {
+			enable: true,
+		},
+		view: {
+			remoteIcon: false,
+			showIcon: false
+		},
+		callback: {
+			onCheck: zTreeOnCheck
+// 			onClick: zTreeOnClick
+		}
+	};
+	
+	function zTreeOnCheck(event, treeId, treeNode) {
+		var treeObj = $.fn.zTree.getZTreeObj("roleMenuTree");
+		var nodes = treeObj.getCheckedNodes(true);
+		var vo = {
+			remark: '',
+			roleSign : '',
+		};
+		vo = permission(nodes, vo);
+		// 设置显示值
+		$('.layui-select-title span').text(vo.remark.substring(0, vo.remark.length - 1));
+		$('.layui-select-title input').val(vo.remark.substring(0, vo.remark.length - 1));
+		// 设置权限标志
+		$('form input[name=roleSign]').val(vo.roleSign.substring(0, vo.roleSign.length - 1));
+	};
+	
+	function permission(nodes, vo) {
+		$.each(nodes, function(index, data) {
+			vo.remark += data.name;
+			vo.remark += ',';
+			vo.roleSign += data.perms;
+			vo.roleSign += ',';
+		})
+		return vo;
+	}
+	
+	// 渲染下拉树
+	function renderTree(treeNode) {
+		ztree.init($("#roleMenuTree"), setting, treeNode);
+		var $downpanelTree = $('.downpanel-tree');
+		$('.downpanel-tree').on('click','.layui-select-title',function(e) {
+			$('.layui-form-select').not($(this).parents('.layui-form-select')).removeClass('layui-form-selected');
+			$(this).parents('.downpanel-tree').toggleClass('layui-form-selected');
+			layui.stope(e);
+		}).on('click','dl i',function(e) {
+			layui.stope(e);
+		});
+		$('.layui-layer-page').on('click',function(e) {
+			$('.layui-form-select').removeClass('layui-form-selected');
+			// e.stopPropagation();
+		});
+		$('#roleMenuTree').on("click", function(e){
+		    e.stopPropagation();
+		});
+	}
+});
+</script>

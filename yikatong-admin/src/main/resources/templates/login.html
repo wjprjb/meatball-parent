@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>MeatBall</title>
+<!-- ICON -->
+<link href="/meatball/images/meatball.ico" type="image/ico" rel="shortcut icon">
+<!-- CSS -->
+<link rel="stylesheet" href="/lib/layui/css/layui.css" />
+<link rel="stylesheet" href="/meatball/css/login.css">
+</head>
+<body>
+	<div id="login">
+		<div class="login-header">
+			<h1>Meatball</h1>
+	    </div>
+		<form class="layui-form layui-form-pane" method="post" action="/">
+			<div class="layui-form-item">
+				<label class="layui-form-label">账号</label>
+				<div class="layui-input-block">
+					<input type="text" name="account"  lay-verify="required" autocomplete="account" placeholder="手机/邮箱/用户名" class="layui-input">
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label layui-icon">密码</label>
+				<div class="layui-input-block">
+					<input type="password" name="password" autocomplete="password" lay-verify="required" placeholder="请输入密码" class="layui-input">
+				</div>
+			</div>
+			<div class="layui-form-item" pane="">
+				<label class="layui-form-label">记住密码</label>
+				<div class="layui-input-block">
+					<input type="checkbox" name="rememberMe" lay-skin="switch" lay-filter="rememberMe" title="开关">
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<button class="layui-btn layui-btn-lg" lay-submit lay-filter="login" style="width: 100%;">登陆</button>
+			</div>
+		</form>
+		<div class="layui-row">
+			<div class="layui-col-md4 layui-col-md-offset2">
+				<a href="javascript:void(0);" lay-submit lay-filter="register">立即注册</a>
+			</div>
+			<div class="layui-col-md4 layui-col-md-offset2">
+				<a href="javascript:void(0);" lay-submit lay-filter="retrievePassword">忘记密码</a>
+			</div>
+		</div>
+	</div>
+	
+<!-- JavaScript -->
+<script type="text/javascript" src="/lib/layui/layui.js"></script>
+<script type="text/javascript">
+layui.use(['form', 'jquery', 'nprogress'], function() {
+	var form = layui.form,
+		nprogress = layui.nprogress,
+		layer = layui.layer,
+		$ = layui.$;
+	
+	// 监听指定开关
+	/*form.on('switch(rememberMe)', function(data) {
+		layer.msg('开关checked：'+ (this.checked ? 'true' : 'false'), {
+	      offset: '6px'
+	    });
+	    layer.tips('温馨提示：请注意开关状态的文字可以随意定义，而不仅仅是ON|OFF', data.othis)
+	})*/
+	
+	// 监听提交
+	form.on('submit(login)', function(data) {
+//		layer.msg(JSON.stringify(data.field));
+		nprogress.start();
+		$.ajax({
+			url: '/validate',
+			type: 'POST',
+			data: data.field,
+			dataType: 'json',
+			success: function(data) {
+				console.log(data.code);
+				if(data.code != 200) {
+					layer.msg(data.message, {icon: 5});
+//					return false;
+				} else {
+					window.location.href = '/';
+//					return true;
+				}
+				nprogress.done();
+			}
+		})
+		return false;
+	})
+	
+	// 注册用户
+	form.on('submit(register)', function(data) {
+		layer.msg('注册新用户');
+	})
+	
+	form.on('submit(retrievePassword)', function(data) {
+		layer.msg('忘记密码', {icon: 5});
+	})
+})
+</script>
+</body>
+</html>

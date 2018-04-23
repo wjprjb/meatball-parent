@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.meatball.log.dao.SysLogMapper" >
+  <resultMap id="BaseResultMap" type="com.meatball.log.model.SysLog" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="description" property="description" jdbcType="VARCHAR" />
+    <result column="method" property="method" jdbcType="VARCHAR" />
+    <result column="params" property="params" jdbcType="VARCHAR" />
+    <result column="type" property="type" jdbcType="INTEGER" />
+    <result column="request_ip" property="requestIp" jdbcType="VARCHAR" />
+    <result column="exception_code" property="exceptionCode" jdbcType="VARCHAR" />
+    <result column="exception_detail" property="exceptionDetail" jdbcType="VARCHAR" />
+    <result column="operate_user" property="operateUser" jdbcType="VARCHAR" />
+    <result column="operate_date" property="operateDate" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, description, method, params, type, request_ip, exception_code, exception_detail, 
+    operate_user, operate_date
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from sys_log
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from sys_log
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.meatball.log.model.SysLog" >
+    insert into sys_log (id, description, method, 
+      params, type, request_ip, 
+      exception_code, exception_detail, operate_user, 
+      operate_date)
+    values (#{id,jdbcType=INTEGER}, #{description,jdbcType=VARCHAR}, #{method,jdbcType=VARCHAR}, 
+      #{params,jdbcType=VARCHAR}, #{type,jdbcType=INTEGER}, #{requestIp,jdbcType=VARCHAR}, 
+      #{exceptionCode,jdbcType=VARCHAR}, #{exceptionDetail,jdbcType=VARCHAR}, #{operateUser,jdbcType=VARCHAR}, 
+      #{operateDate,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.meatball.log.model.SysLog" >
+    insert into sys_log
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="description != null" >
+        description,
+      </if>
+      <if test="method != null" >
+        method,
+      </if>
+      <if test="params != null" >
+        params,
+      </if>
+      <if test="type != null" >
+        type,
+      </if>
+      <if test="requestIp != null" >
+        request_ip,
+      </if>
+      <if test="exceptionCode != null" >
+        exception_code,
+      </if>
+      <if test="exceptionDetail != null" >
+        exception_detail,
+      </if>
+      <if test="operateUser != null" >
+        operate_user,
+      </if>
+      <if test="operateDate != null" >
+        operate_date,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="description != null" >
+        #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="method != null" >
+        #{method,jdbcType=VARCHAR},
+      </if>
+      <if test="params != null" >
+        #{params,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=INTEGER},
+      </if>
+      <if test="requestIp != null" >
+        #{requestIp,jdbcType=VARCHAR},
+      </if>
+      <if test="exceptionCode != null" >
+        #{exceptionCode,jdbcType=VARCHAR},
+      </if>
+      <if test="exceptionDetail != null" >
+        #{exceptionDetail,jdbcType=VARCHAR},
+      </if>
+      <if test="operateUser != null" >
+        #{operateUser,jdbcType=VARCHAR},
+      </if>
+      <if test="operateDate != null" >
+        #{operateDate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.meatball.log.model.SysLog" >
+    update sys_log
+    <set >
+      <if test="description != null" >
+        description = #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="method != null" >
+        method = #{method,jdbcType=VARCHAR},
+      </if>
+      <if test="params != null" >
+        params = #{params,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null" >
+        type = #{type,jdbcType=INTEGER},
+      </if>
+      <if test="requestIp != null" >
+        request_ip = #{requestIp,jdbcType=VARCHAR},
+      </if>
+      <if test="exceptionCode != null" >
+        exception_code = #{exceptionCode,jdbcType=VARCHAR},
+      </if>
+      <if test="exceptionDetail != null" >
+        exception_detail = #{exceptionDetail,jdbcType=VARCHAR},
+      </if>
+      <if test="operateUser != null" >
+        operate_user = #{operateUser,jdbcType=VARCHAR},
+      </if>
+      <if test="operateDate != null" >
+        operate_date = #{operateDate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.meatball.log.model.SysLog" >
+    update sys_log
+    set description = #{description,jdbcType=VARCHAR},
+      method = #{method,jdbcType=VARCHAR},
+      params = #{params,jdbcType=VARCHAR},
+      type = #{type,jdbcType=INTEGER},
+      request_ip = #{requestIp,jdbcType=VARCHAR},
+      exception_code = #{exceptionCode,jdbcType=VARCHAR},
+      exception_detail = #{exceptionDetail,jdbcType=VARCHAR},
+      operate_user = #{operateUser,jdbcType=VARCHAR},
+      operate_date = #{operateDate,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

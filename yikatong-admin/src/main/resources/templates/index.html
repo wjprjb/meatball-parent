@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Meatball</title>
+<!-- ICON -->
+<link href="/meatball/images/meatball.ico" type="image/ico" rel="shortcut icon">
+<!-- CSS -->
+<link rel="stylesheet" href="/lib/layui/css/layui.css" media="all" />
+</head>
+<body class="layui-layout-body">
+	<div class="layui-layout layui-layout-admin">
+		<div class="meatball-header">
+			<div><a class="layui-logo" href="/">Meatball</a></div>
+			<!-- 头部区域（可配合layui已有的水平导航） -->
+			<ul class="layui-nav layui-layout-left" lay-filter="topMenu">
+				<li class="layui-nav-item layadmin-flexible" lay-unselect="">
+					<a href="javascript:;" layadmin-event="flexible" title="侧边伸缩">
+						<i class="layui-icon layui-icon-shrink-right" id="LAY_app_flexible"></i>
+					</a>
+				</li>
+				<li th:each="menu,row:${session.menus}" th:class="${row.index == 0}?'layui-nav-item layui-this':'layui-nav-item'" th:data="${menu.id}">
+					<a href="javascript:;"><i th:class="${menu.icon}" th:text="' '"></i><font th:text="${menu.name}"></font></a>
+				</li>
+			</ul>
+			<ul class="layui-nav layui-layout-right">
+				<li class="layui-nav-item">
+			    	<a href="javascript:;"><i class="layui-icon" style="font-size: 20px;">&#xe63a;</i><span class="layui-badge-dot"></span></a>
+			  	</li>
+				<li class="layui-nav-item">
+					<a href="javascript:;" th:object="${session.sysUser}"> 
+						<img th:src="*{avatar}" class="layui-nav-img" th:text="*{name}">
+					</a>
+					<dl class="layui-nav-child">
+						<dd>
+							<a href="">基本资料</a>
+						</dd>
+						<dd>
+							<a href="">安全设置</a>
+						</dd>
+						<dd>
+							<a href="/logout">退出登陆</a>
+						</dd>
+					</dl>
+				</li>
+			</ul>
+		</div>
+		
+		<!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+		<div class="layui-side layui-bg-black">
+			<div class="layui-side-scroll">
+				<ul class="layui-nav layui-nav-tree" lay-filter="leftMenu" id="leftmenu">
+					<li class="layui-nav-item" th:id="${menu.id}" th:href="${menu.href}" th:each="menu:${session.menus[0].children}">
+						<a href="javascript:;"><i th:class="${menu.icon}" th:text="' '"></i><font th:text="${menu.name}"></font></a>
+						<dl class="layui-nav-child" th:if="${menu.children.size() > 0 && child.type != 2}" th:each="child:${menu.children}">
+							<dd th:id=${child.id} th:href="${child.href}" >
+								<a href="javascript:;"><i th:class="${child.icon}" th:text="' '"></i><font th:text="${child.name}"></font></a>
+							</dd>
+						</dl>
+					</li>
+				</ul>
+				<script type="text/html" id="left">
+				{{# for(var i = 0; i < d.length; i++) { }}
+				<li class="layui-nav-item" id="{{d[i].id}}" href="{{d[i].href}}">
+					<a href="javascript:;"><i class="{{d[i].icon}}"> </i><font>{{d[i].name}}</font></a>
+					{{# for(var j = 0; j < d[i].children.length; j++) { }}
+					{{# if(d[i].children[j].type != 2){ }}
+					<dl class="layui-nav-child">
+						<dd id="{{d[i].children[j].id}}" href="{{d[i].children[j].href}}">
+							<a href="javascript:;"><i class="{{d[i].children[j].icon}}"> </i><font>{{d[i].children[j].name}}</font></a>
+						</dd>
+					</dl>
+					{{# } }}
+					{{# } }}
+				</li>
+				{{# } }}
+				</script>
+			</div>
+		</div>
+		
+		<!-- 内容主体区域 -->
+		<div class="layui-body" style="margin-left: 5ox;">
+			<div class="layui-tab layui-tab-card" lay-filter="content" lay-allowclose="true">
+				<ul class="layui-tab-title">
+					<li class="layui-this lock"><i class="layui-icon">&#xe68e;</i></li>
+				</ul>
+				<div class="mt-tab-operate">
+					<li>
+						<i class="layui-icon">&#xe61a;</i>
+					</li>
+					<div class="mt-tab-tool-body layui-anim layui-anim-upbit">
+						<ul>
+							<li class="mt-item" data-operate="refresh">刷新当前选项卡</li>
+							<li class="mt-item" data-operate="closeOther">关闭其他选项卡</li>
+							<li class="mt-item" data-operate="closeAll">关闭所有选项卡</li>
+						</ul>
+					</div>
+				</div>
+				
+				<div class="layui-tab-content">
+					<div class="layui-tab-item layui-show lock">
+						<div class="layui-row">
+							<div class="layui-col-md12" align="center">
+								<!-- <div id="main" style="height:750px;width: 950px;margin: 0 auto;"></div> -->
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- 底部固定区域 -->
+		<div class="layui-footer">
+			© Meatball(http://www.meatball.com)
+		</div>
+	</div>
+	
+<!-- JavaScript -->
+<script type="text/javascript" src="/lib/layui/layui.js"></script>
+<!-- <script type="text/javascript" src="/lib/echarts/echarts.js"></script> -->
+<!-- <script type="text/javascript" src="/meatball/js/echarts.js"></script> -->
+<script th:inline="javascript">  
+	var menus = /*[[${session.menus}]]*/  
+</script>
+<script>
+//JavaScript代码区域
+layui.use(['element', 'layer', 'laytpl', 'form', 'nprogress', 'jquery'], function() {
+	var element = layui.element,
+		form = layui.form,
+		layer = layui.layer, 
+		$ = layui.jquery,
+		nprogress = layui.nprogress,
+		laytpl = layui.laytpl;
+	
+	// 监听顶部导航栏点击并绘制左侧导航栏
+	var getTpl = left.innerHTML, $leftMenu = $('#leftmenu');
+	element.on('nav(topMenu)', function(elem) {
+		var id = elem.attr('data');
+		$.each(menus, function(index, data) {
+			if(data.id == id) {
+				laytpl(getTpl).render(data.children, function(html){
+					$leftMenu.html(html);
+				});
+			}
+		})
+		element.render('nav');
+	})
+	
+	//监听左侧导航点击
+	var $ul = $('.layui-tab-title');
+	element.on('nav(leftMenu)', function(elem) {
+		if($ul.find('li[lay-id=' + elem.attr('id') + ']').length > 0) {
+			element.tabChange('content', elem.attr('id')); 
+		} else {
+			//新增一个Tab项
+			nprogress.start();
+			$.get(elem.attr('href'), function(res) {
+				if(res.status == 403) {
+					layer.msg(res.message, {icon: 4});
+					return;
+				} else if(res.status == 404) {
+					layer.msg(res.message, {icon: 4});
+					return;
+				}
+				element.tabAdd('content', {
+					title : elem.find('font').text(),
+					content : res,
+					id : elem.attr('id')
+				})
+				//切换到选中的tab
+				form.render('select');	// 重新渲染下拉框
+				form.render('checkbox');	// 重新渲染多选框
+				form.render('radio');		// 渲染点选框
+				element.render('collapse') // 渲染面板
+		 		element.tabChange('content', elem.attr('id')); 
+				nprogress.done();
+			})
+		}
+	});
+	/* element.on('tabDelete(content)', function(data){
+		console.log(this); //当前Tab标题所在的原始DOM元素
+		console.log(data.index); //得到当前Tab的所在下标
+		console.log(data.elem); //得到当前的Tab大容器
+	}) */
+});
+</script>
+</body>
+</html>
